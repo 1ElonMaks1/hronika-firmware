@@ -7,11 +7,11 @@
     "changelog": "• Ускорена запись на SD\r\n• Пофикшен краш в EDIT при удалении трека\r\n• Новый эффект: Tape Stop"
   },
   "ui": {
-    "version": "0.1.0",
-    "url": "https://github.com/1ElonMaks1/hronika-firmware/releases/download/ui-v0.1.0/ui.bin",
-    "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
-    "size": 0,
-    "changelog": "Первая публичная версия"
+    "version": "0.2.1",
+    "url": "https://github.com/1ElonMaks1/hronika-firmware/releases/download/ui-v0.2.1/ui.bin",
+    "sha256": "50ba8c7af41b0b4b00abb5a434e2da368b3faf80157d741a50194352cd4aac4f",
+    "size": 794768,
+    "changelog": "Тест новой версии прошивки"
   },
   "min_app_version": "1.0.0",
   "release_date": "2026-10-12",
