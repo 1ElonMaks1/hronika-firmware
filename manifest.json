@@ -1,0 +1,19 @@
+{
+  "audio": {
+    "version": "0.1.0",
+    "url": "https://github.com/1ElonMaks1/hronika-firmware/releases/download/audio-v0.1.0/audio.bin",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "size": 0,
+    "changelog": "Первая публичная версия"
+  },
+  "ui": {
+    "version": "0.1.0",
+    "url": "https://github.com/1ElonMaks1/hronika-firmware/releases/download/ui-v0.1.0/ui.bin",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "size": 0,
+    "changelog": "Первая публичная версия"
+  },
+  "min_app_version": "1.0.0",
+  "release_date": "2026-10-12",
+  "notes": "Инициализация системы обновлений"
+}
