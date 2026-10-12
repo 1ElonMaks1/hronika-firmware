@@ -1,10 +1,10 @@
 {
   "audio": {
-    "version": "0.2.2",
-    "url": "https://github.com/1ElonMaks1/hronika-firmware/releases/download/audio-v0.2.2/audio.bin",
+    "version": "0.2.4",
+    "url": "https://github.com/1ElonMaks1/hronika-firmware/releases/download/audio-v0.2.4/audio.bin",
     "sha256": "feb6e0b4cdc0690e6a0b8dbebbef0e0050d09d88f97a23b90b40e3a4d2c54f59",
     "size": 596192,
-    "changelog": "Обновление"
+    "changelog": "test"
   },
   "ui": {
     "version": "0.2.4",
