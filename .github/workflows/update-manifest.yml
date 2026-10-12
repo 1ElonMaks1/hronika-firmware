@@ -1,0 +1,117 @@
+name: Auto-update manifest on release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  update-manifest:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Parse tag
+        id: tag
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          if [[ "$TAG" == audio-v* ]]; then
+            TYPE="audio"
+            VERSION="${TAG#audio-v}"
+          elif [[ "$TAG" == ui-v* ]]; then
+            TYPE="ui"
+            VERSION="${TAG#ui-v}"
+          else
+            echo "::error::Tag must start with 'audio-v' or 'ui-v'. Got: $TAG"
+            exit 1
+          fi
+          echo "type=$TYPE"       >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Parsed: type=$TYPE version=$VERSION"
+
+      - name: Find .bin asset
+        id: asset
+        env:
+          ASSETS: ${{ toJSON(github.event.release.assets) }}
+        run: |
+          URL=$(echo "$ASSETS" | jq -r '.[] | select(.name | endswith(".bin")) | .browser_download_url' | head -n1)
+          SIZE=$(echo "$ASSETS" | jq -r '.[] | select(.name | endswith(".bin")) | .size' | head -n1)
+
+          if [ -z "$URL" ] || [ "$URL" = "null" ]; then
+            echo "::error::No .bin asset in release"
+            exit 1
+          fi
+
+          echo "url=$URL"   >> $GITHUB_OUTPUT
+          echo "size=$SIZE" >> $GITHUB_OUTPUT
+          echo "Found .bin: $URL ($SIZE bytes)"
+
+      - name: Download and compute SHA256
+        id: sha
+        run: |
+          curl -sL -o fw.bin "${{ steps.asset.outputs.url }}"
+          SHA=$(sha256sum fw.bin | awk '{print $1}')
+          echo "sha256=$SHA" >> $GITHUB_OUTPUT
+          echo "SHA256: $SHA"
+
+      - name: Update manifest.json
+        env:
+          TYPE:          ${{ steps.tag.outputs.type }}
+          VERSION:       ${{ steps.tag.outputs.version }}
+          URL:           ${{ steps.asset.outputs.url }}
+          SIZE:          ${{ steps.asset.outputs.size }}
+          SHA:           ${{ steps.sha.outputs.sha256 }}
+          CHANGELOG_RAW: ${{ github.event.release.body }}
+          PUBLISHED_AT:  ${{ github.event.release.published_at }}
+        run: |
+          python3 << 'PYEOF'
+          import json, os, datetime
+
+          with open('manifest.json', 'r', encoding='utf-8') as f:
+              m = json.load(f)
+
+          fw_type = os.environ['TYPE']
+          m[fw_type] = {
+              "version":   os.environ['VERSION'],
+              "url":       os.environ['URL'],
+              "sha256":    os.environ['SHA'],
+              "size":      int(os.environ['SIZE']),
+              "changelog": os.environ['CHANGELOG_RAW'].strip() or "Обновление",
+          }
+
+          try:
+              d = datetime.datetime.fromisoformat(
+                  os.environ['PUBLISHED_AT'].replace('Z', '+00:00'))
+              m['release_date'] = d.strftime('%Y-%m-%d')
+          except Exception:
+              m['release_date'] = datetime.date.today().isoformat()
+
+          m['notes'] = "Автоматическое обновление"
+
+          with open('manifest.json', 'w', encoding='utf-8') as f:
+              json.dump(m, f, ensure_ascii=False, indent=2)
+
+          print('=== manifest.json updated ===')
+          print(json.dumps(m, ensure_ascii=False, indent=2))
+          PYEOF
+
+      - name: Commit and push
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add manifest.json
+
+          if git diff --staged --quiet; then
+            echo "No changes — ничего не коммитим"
+            exit 0
+          fi
+
+          git commit -m "Auto: ${{ steps.tag.outputs.type }} v${{ steps.tag.outputs.version }}"
+          git push
