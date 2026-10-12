@@ -7,10 +7,10 @@
     "changelog": "Обновление"
   },
   "ui": {
-    "version": "0.2.4",
-    "url": "https://github.com/1ElonMaks1/hronika-firmware/releases/download/ui-v0.2.4/ui.bin",
-    "sha256": "1ec7126548c17b9a08b63cfabf00d1ad5758128d569f3978bf01d30e02040ccc",
-    "size": 794752,
+    "version": "0.2.5",
+    "url": "https://github.com/1ElonMaks1/hronika-firmware/releases/download/ui-v0.2.5/ui.bin",
+    "sha256": "09c363c70c823b8ff676a37c43f7473e9cc37bed77fc56c1ba3ba068df896373",
+    "size": 794912,
     "changelog": "Обновление"
   },
   "min_app_version": "1.0.0",
